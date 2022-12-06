@@ -39,7 +39,7 @@ puzz1 = do
   let filteredStacks = map (map (filter isAlpha)) sortedStacks
   let charStacks = map (map safeStringChar) filteredStacks
   let indexedCharStacks = map (zip [1..]) charStacks
-  let baseStack = M.fromList (zip [1..9] (repeat ""))
+  let baseStack = M.fromList (zip [1..9] (repeat " "))
   let parsedStacks = genStacks baseStack indexedCharStacks
 --  putStrLn "raw stacks"
 --  putStrLn $ show $ rawStacks
@@ -56,7 +56,12 @@ puzz1 = do
 -- if I look up the head of the list at index 1 i get an empty list error
 -- i think my stack moving algorithm is doing something wrong
 -- i'm sleepy.
-
+-- if i look up the length of any other index list it gives the same error
+-- something about tail getting an empty list
+-- made a safe tail, still doesnt work.  now head is complaining about blank lists
+-- made a safe head too that just returns a space
+-- i got a Stacks
+-- it did not move right
 
 -- ------------------
 -- Special Datatypes
@@ -119,5 +124,12 @@ doMove (Move amt mo) st =
 countMoves :: [a] -> Stacks -> Motion -> Stacks
 countMoves [] st _ = st -- no move moves left to do
 countMoves (_:xs) st (Motion frm to) =
-  countMoves xs (M.adjust tail frm (M.adjust ((head (st M.! frm)):) to st)) (Motion frm to)
+  countMoves xs (M.adjust safetail frm (M.adjust ((safehead (st M.! frm)):) to st)) (Motion frm to)
 
+safetail :: [a] -> [a]
+safetail [] = []
+safetail (_:xs) = xs
+
+safehead :: [Char] -> Char
+safehead [] = ' '
+safehead (x:_) = x
